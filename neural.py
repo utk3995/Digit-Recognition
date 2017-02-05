@@ -36,15 +36,16 @@ class Neural(object):
 			for mini in minibatches:
 				self.update_mini_batch(mini,eta)
 
-			#if (test_data):
-			#	print "After Epoch ",i,":"
-			#	self.testing(test_data)
+			if (test_data):
+				print "After Epoch ",i,":"
+				self.testing(test_data)
 
 
 	def testing(self,test_data):
 		results = [(np.argmax(self.feedforward(x)),y) for (x,y) in test_data] #pair of actual and output we got
-		true_results = sum(int(x == y) for (x,y) in results) #number of results which are actually true
-		print "Number of correct results : ",true_results
+		print "Total inputs : ",len(results)
+		correct_results = sum(int(x == y) for (x,y) in results) #number of results which are actually true
+		print "Number of correct results : ",correct_results
 
 
 	def update_mini_batch(self,minibatch,eta):
@@ -55,7 +56,7 @@ class Neural(object):
 			grad_b,grad_w = self.backPropagation(x,y)
 
 			d_b = [newb + del_nb for newb,del_nb in zip(d_b,grad_b)]
-			d_w = [neww + del_nb for neww,del_nw in zip(d_w,grad_w)]
+			d_w = [neww + del_nw for neww,del_nw in zip(d_w,grad_w)]
 
 		self.weights = [w-(eta/len(minibatch))*neww for w,neww in zip(self.weights,d_w)]
 		self.biases = [b-(eta/len(minibatch))*newb for b,newb in zip(self.biases,d_b)]
@@ -83,7 +84,9 @@ class Neural(object):
 			activation = sigmoid(z)
 			activation_all.append(activation)
 		
-		delta = self.cost_derivative(activation_all[-1],y) *\ sigmoid_slope(z_values[-1])
+		#delta = self.cost_derivative(activation_all[-1],y) * \ sigmoid_slope(z_values[-1])
+		delta = self.cost_derivative(activation_all[-1], y) * \
+		sigmoid_slope(z_values[-1])
 		grad_b[-1] = delta # according to formula (BP3)
 		grad_w[-1] = np.dot(delta,activation_all[-2].transpose()) # accoding to formula (BP4)
 
@@ -108,9 +111,8 @@ class Neural(object):
 	
 
 training_data,validation_data,test_data = mnist_loader.load_data_wrapper()
-net = Network([784,30,10])
+net = Neural([784,30,10])
 #print len(training_data)
-net.stochastic(3,30,10,training_data,test_data)
 net.stochastic(training_data,30,10,3.0,test_data)
 
 
