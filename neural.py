@@ -83,7 +83,7 @@ class Neural(object):
 			activation = sigmoid(z)
 			activation_all.append(activation)
 		
-		delta = self.cost_derivative(activation_all[-1],y) * \ sigmoid_slope(z_values[-1])
+		delta = self.cost_derivative(activation_all[-1],y) *\ sigmoid_slope(z_values[-1])
 		grad_b[-1] = delta # according to formula (BP3)
 		grad_w[-1] = np.dot(delta,activation_all[-2].transpose()) # accoding to formula (BP4)
 
