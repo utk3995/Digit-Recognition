@@ -5,10 +5,10 @@ import numpy as np
 import mnist_loader
 
 def sigmoid(x): #returns the value of sigmoid function for x
-	return 1/(1+np.exp(-x))
+	return 1.0/(1.0+np.exp(-x))
 
 def sigmoid_slope(x): #returns the slope of the sigmoid function for x
-	return x*(1-x)
+	return sigmoid(x)*(1-sigmoid(x))
 
 class Neural(object):
 	def __init__(self,sizes): #initialize the neural network
@@ -43,7 +43,7 @@ class Neural(object):
 
 	def testing(self,test_data):
 		results = [(np.argmax(self.feedforward(x)),y) for (x,y) in test_data] #pair of actual and output we got
-		true_results = sujm(int(x == y) for (x,y) in results) #number of results which are actually true
+		true_results = sum(int(x == y) for (x,y) in results) #number of results which are actually true
 		print "Number of correct results : ",true_results
 
 
@@ -83,14 +83,14 @@ class Neural(object):
 			activation = sigmoid(z)
 			activation_all.append(activation)
 		
-		delta = self.cost_derivative(activation_all[-1],y) */ sigmoid_deriv(z_values[-1])
+		delta = self.cost_derivative(activation_all[-1],y) * \ sigmoid_slope(z_values[-1])
 		grad_b[-1] = delta # according to formula (BP3)
 		grad_w[-1] = np.dot(delta,activation_all[-2].transpose()) # accoding to formula (BP4)
 
 		# loop for propagating the delta values backward
 		for i in xrange(2,self.num_layers):
 			z = z_values[-i]
-			sig_der = sigmoid_deriv(z)
+			sig_der = sigmoid_slope(z)
 			#print self.weights[-i+1].transpose().shape
 			#print delta.shape
 			delta = np.dot(self.weights[-i+1].transpose(),delta)*sig_der       # broadcasting error
@@ -111,6 +111,7 @@ training_data,validation_data,test_data = mnist_loader.load_data_wrapper()
 net = Network([784,30,10])
 #print len(training_data)
 net.stochastic(3,30,10,training_data,test_data)
+net.stochastic(training_data,30,10,3.0,test_data)
 
 
 
